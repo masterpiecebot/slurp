@@ -24,9 +24,11 @@ crudeMap = [
   [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]  ]
 
 # Game Textures
+# Textures have a filename, height in game, and #TODO
+# Height of 1 is half height, height of 2 is full height, height of 3 is higher. Textures should have appropriate h/w ratios.
 textureList = [
-  "brick5.png",
-  "bluemeat.png"
+  ["brick5.png", 2],
+  ["bluemeat.png", 1]
 ]
 
 class Map():
@@ -41,15 +43,20 @@ class Map():
         self.textures = []      # Textures used by the game
         self.textureSlices = [] # A list of vertical slices of each texture, to be used by scanlines
 
+        self.drawmap = True
+
         # Load Textures
         for i in range(len(textureList)):
-            texture = pg.image.load(os.path.join('textures', textureList[i]))
+            texture = pg.image.load(os.path.join('textures', textureList[i][0])).convert_alpha()
             self.textures.append(texture)
             self.textureSlices.append([])
             height = texture.get_height()
             for j in range(texture.get_width()):
               slice = texture.subsurface(j, 0, 1, height)
               self.textureSlices[i].append(slice)
+
+    def drawMap(self):
+        self.drawmap = not self.drawmap
 
 def drawMap2D(screen, m):
     for i in range(m.maph):

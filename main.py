@@ -8,19 +8,29 @@ import sys
 import math
 from math import pi as PI
 
+## TODO:
+# Scale down textures for distant objects
+# Add transparent textures
+
+## Ideas:
+# Turn off background refresh for trippy effect
+
 # Player Variables
 RAD = 20  # Player size (radius)
 FOV = PI / 2  # Player field of view (radians)
 # X0, Y0 = RESx // 2, RESy // 2
 # THETA0 = PI * 1.4  # Player starting view direction (radians from north CW)
-X0, Y0, THETA0 = 375.818106502971, 403.6225436374409, 0.3950444078461259
+X0, Y0, THETA0 = 8, 8, 0.3950444078461259
 
 class Game:
 
     # Setup
     def __init__(self):
+        os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (0, 50)  # Sets the window location on screen
         pg.init()
-        self.screen = pg.display.set_mode(RES)
+        self.sky = pg.image.load("textures\skyxp.png")
+        self.screen = pg.display.set_mode((RESx * 2, RESy))
+        #self.screen = pg.display.set_mode(RES, flags=pg.SCALED, vsync=1)
         self.clock = pg.time.Clock()
         self.delta_time = 1
         self.m = Map()
@@ -35,13 +45,21 @@ class Game:
 
     def draw(self):
         self.screen.fill('black')
-        if DISPLAYMAP:
+        # Draw the sky
+        angle = self.p.theta
+        offset = math.ceil(angle * 896 / PI)
+        width = self.sky.get_width()
+        if offset + RESx < width:
+            self.screen.blit(self.sky, (0,0), (offset, 0, RESx, RESy/2))
+        else:
+            self.sky.get_width() - offset
+            self.screen.blit(self.sky, (0, 0), (offset, 0, width - offset, RESy / 2))
+            self.screen.blit(self.sky, (width - offset, 0), (0, 0, RESx + offset - width, RESy / 2))
+
+        castRays(self.screen, self.p, self.m)
+        if self.m.drawmap:
             drawMap2D(self.screen, self.m)
             self.p.display()
-            pg.draw.rect(self.screen, "black", pg.Rect(0, 0, RESx, RESy))
-        else:
-            pg.draw.rect(self.screen, "black", pg.Rect(0, 0, RES[0], RES[1]))
-        castRays(self.screen, self.p, self.m)
 
     def check_events(self):
         for event in pg.event.get():
@@ -50,7 +68,11 @@ class Game:
                 sys.exit()
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_m:
-                    pass
+                    self.m.drawMap()
+                    if self.m.drawmap:
+                        self.screen = pg.display.set_mode((RESx*2, RESy))
+                    else:
+                        self.screen = pg.display.set_mode(RES)
 
     def run(self):
         while True:

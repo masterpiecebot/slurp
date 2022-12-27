@@ -5,9 +5,9 @@ from math import pi as PI
 from math import tau as TAU
 
 # Unchanging Variables:
-radius = 20            # Player size (radius)
+radius = .3            # Player size (radius)
 rotSpd = 0.04          # Rotational speed (radians per frame)
-pAccel = 0.02           # Player acceleration (speeding up from a stop, slowing down)
+pAccel = 0.0003           # Player acceleration (speeding up from a stop, slowing down)
 color = (255, 255, 0)  # Player color
 
 class Player():
@@ -17,7 +17,7 @@ class Player():
         
         self.dof = 16               # Depth of field (view distance)
         self.fov = PI/2             # Field of view (radians)
-        self.vmax = 35/100          # Player max speed
+        self.vmax = 25/5000          # Player max speed
 
         self.x, self.y = x, y       # Player x, y location
         self.theta = theta          # Player rotation
@@ -26,52 +26,21 @@ class Player():
         self.vx, self.vy = 0, 0                 # Player component velocities (x,y)
 
     def display(self):
-        pg.draw.line(self.game.screen, 'yellow', (self.x + OFFSET2D, self.y),
-                     (self.x + OFFSET2D + RESx * math.sin(self.theta),
-                      self.y - RESy * math.cos(self.theta)),2)
-        pg.draw.circle(self.game.screen, 'green', (self.x + OFFSET2D, self.y), radius)
-
-        pg.draw.line(self.game.screen, "yellow", (self.x + OFFSET2D, self.y), (self.x + OFFSET2D + self.vx * 10, self.y - self.vy*10))
-
-    def move2(self):
-        keys = pg.key.get_pressed()
-        UP    = keys[pg.K_w]
-        DOWN  = keys[pg.K_s]
-        LEFT  = keys[pg.K_a]
-        RIGHT = keys[pg.K_d]
-        TURNR = keys[pg.K_RIGHT]
-        TURNL = keys[pg.K_LEFT]
-        
-        sin = math.sin(self.theta)
-        cos = math.cos(self.theta)
-
-        dx, dy = 0,0
-        speed = 1 * self.game.delta_time
-        sps = speed * sin
-        spc = speed * cos
-
-        dx, dy = 0, 0
-        if UP:
-            dx += spc
-            dy += sps
-        if DOWN:
-            dx -= spc
-            dy -= sps
-        if LEFT:
-            dx += sps
-            dy -= spc
-        if RIGHT:
-            dx -= sps
-            dy += spc
-
-        self.x += dx
-        self.y += dy
-
-        if TURNL:
-            self.theta -= rotSpd * self.game.delta_time
-        if TURNR:
-            self.theta += rotSpd * self.game.delta_time
-        self.theta %= TAU
+        # Line that points in direction of looking
+        # pg.draw.line(self.game.screen, 'yellow', (self.x + OFFSET2D, self.y),
+        #              (self.x + OFFSET2D + RESx * math.sin(self.theta),
+        #               self.y - RESy * math.cos(self.theta)),2)
+        t = math.sqrt(2) * radius
+        gridW, gridH = self.game.m.gridPixelW, self.game.m.gridPixelH
+        x = self.x * self.game.m.gridPixelW
+        y = self.y * self.game.m.gridPixelH
+        rw = radius * self.game.m.gridPixelW
+        rh = radius * self.game.m.gridPixelW
+        points = [[x + OFFSET2D + rw * math.sin(self.theta), y - rh * math.cos(self.theta)],
+                  [x + OFFSET2D + rw * math.sin(self.theta + 4*PI/5), y - rh * math.cos(self.theta + 4*PI/5)],
+                  [x + OFFSET2D + rw * math.sin(self.theta + 6*PI/5), y - rh * math.cos(self.theta + 6*PI/5)]]
+        pg.draw.polygon(self.game.screen, 'yellow', points)
+        pg.draw.line(self.game.screen, "yellow", (x + OFFSET2D, y), (x + OFFSET2D + self.vx * 10, y - self.vy*10))
 
     def move(self):
         # Get movement keys pressed
