@@ -20,7 +20,7 @@ RAD = 20  # Player size (radius)
 FOV = PI / 2  # Player field of view (radians)
 # X0, Y0 = RESx // 2, RESy // 2
 # THETA0 = PI * 1.4  # Player starting view direction (radians from north CW)
-X0, Y0, THETA0 = 3.5, 3.5, 1
+X0, Y0, THETA0 = 1.5, 1.5, 0
 
 class Game:
 
@@ -29,8 +29,7 @@ class Game:
         os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (0, 50)  # Sets the window location on screen
         pg.init()
         self.sky = pg.image.load("textures\skyxp.png")
-        self.screen = pg.display.set_mode((RESx * 1, RESy))
-        #self.screen = pg.display.set_mode(RES, flags=pg.SCALED, vsync=1)
+        self.screen = pg.display.set_mode(RES, flags=pg.SCALED, vsync=1)
         self.clock = pg.time.Clock()
         self.delta_time = 1
         self.m = Map()

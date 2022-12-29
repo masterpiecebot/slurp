@@ -5,7 +5,7 @@ from math import pi as PI
 from math import tau as TAU
 
 # Unchanging Variables:
-radius = .3            # Player size (radius)
+radius = .2            # Player size (radius)
 rotSpd = 0.04          # Rotational speed (radians per frame)
 pAccel = 0.0003           # Player acceleration (speeding up from a stop, slowing down)
 color = (255, 255, 0)  # Player color
