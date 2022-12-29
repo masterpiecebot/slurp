@@ -26,73 +26,59 @@ def castRays(screen, p, m):
         # Calculate how far along the grid block the end of the ray is
         r = castRay(screen, p, m, theta)
         if r:
-            drawRay(screen, p, m, r, i)
+            pass #drawRay(screen, p, m, r, i)
         theta += increment
 
 def castRay(screen, p, m, angle):
     # Find which coordinate of the map the player is inside
     playerMapX = math.floor(p.x)
     playerMapY = math.floor(p.y)
-    sin_a = math.sin(angle)
+    sin_a = math.sin(angle)+0.00001
     cos_a = math.cos(angle)
     tan_a = math.tan(angle)
-    xUnitComp = tan_a
-    yUnitComp = 1 / xUnitComp
     # VERTICAL WALL FINDER
     # Find the x coordinate of the map that the player is facing (plus or minus one)
-    xright = int(angle < PI)                            # Is x facing right? 1 or 0
-    dx = 2*xright-1                                     # Which direction is x facing? -1 or 1
-    x_vert = playerMapX + xdirection                    # Map block that x is facing
-    apparentx = playerMapX + 0.5 * xdirection + 0.5     # Vert that x is facing
+    x_right = int(angle < PI)                            # Is x facing right? 1 or 0
+    dx = 2 * x_right - 1                                     # Which direction is x facing? -1 or 1
+    x_vert = playerMapX + x_right                    # Map block that x is facing
     # Find the components of the ray, and the appropriate map y coordinate
-    depth_vert = (apparentx - p.x) / sin_a                           # Distance from player to nearest vert
+    depth_vert = (x_vert - p.x) / sin_a                           # Distance from player to nearest vert
     y_vert = p.y - depth_vert * cos_a
-    delta_depth = dx / cos_a
-    dy = - sin_a * delta_depth
+    delta_depth = dx / sin_a
+    dy = - cos_a * delta_depth
     for i in range(p.dof):
         tile_vert = int(x_vert), int(y_vert)
-        if tile_vert in self.game.world
-        if m.grid[constrain(xneary, 0, m.maph-1)][constrain(x_vert, 0, m.mapw-1)] != 0:
-            texturex = m.grid[constrain(xneary, 0, m.maph-1)][constrain(x_vert, 0, m.mapw-1)]  # Save the texture of the map pixel touched
+        if tile_vert in m.map:
             break
-        else:
-            xrayx += RESx/m.mapw * dx
-            xrayy += yUnitComp * RESx/m.mapw * dx
-            x_vert += dx
-            xneary = round((p.y-xrayy)/RESy*m.maph-0.5)
+        x_vert += dx
+        y_vert += dy
+        depth_vert += delta_depth
+    pg.draw.line(screen, "yellow", (p.x * m.gridPixelW, p.y * m.gridPixelH), (x_vert * m.gridPixelW, y_vert * m.gridPixelH), 5)
     # Not written: Draw the ray
     # HORIZONTAL WALL FINDER
-    ydirection = -2 * int(angle < PI/2 or angle > PI/2*3) + 1
-    yneary = playerMapY + ydirection
-    apparenty = playerMapY + 0.5 * ydirection + 0.5
-    # Find the components of the ray, and the appropriate map x coordinate
-    pass # Used to have xunitcomp here, but it was more efficient to move it earlier
-    yrayy = apparenty*RESy/m.maph - p.y
-    yrayx = yrayy * xUnitComp
-    ynearx = round((p.x-yrayx)/RESx*m.mapw-0.5)
-    #println("Map Y: ",playerMapY," | neary: ",xneary," | apparenty: ",apparenty)
-    # If there's no wall there, move 1 map.y unit further and check again, up to depth of view
-    texturey = -1
-    for i in range(p.dof):
-        if m.grid[constrain(yneary, 0, m.maph-1)][constrain(ynearx, 0, m.mapw-1)] != 0:
-            texturey = m.grid[constrain(yneary, 0, m.maph-1)][constrain(ynearx, 0, m.mapw-1)]  # Save the texture of the map pixel touched
-            break
-        else:
-            yrayx += xUnitComp * RESy/m.maph * ydirection
-            yrayy += RESy/m.maph * ydirection
-            ynearx = round((p.x-yrayx)/RESx*m.mapw-0.5)
-            yneary += ydirection
-    # Not written: Draw the ray
-    # PICK THE SHORTER RAY
-    lenx = math.sqrt(xrayx**2 + xrayy**2)
-    leny = math.sqrt(yrayx**2 + yrayy**2)
+    y_down = int(angle > PI/2 and angle < PI/2*3)
+    dy = 2 * y_down - 1
+    y_hor = playerMapY + y_down
+    depth_hor = (y_hor - p.y) / cos_a
+    x_hor = p.x - depth_hor * sin_a
+    delta_depth = dy / cos_a
+    dx = - tan_a / dy
 
-    if lenx < leny:
-        if texturex == -1:  return False    # If no wall found in depth of field
-        return Ray(xrayx, xrayy, x_vert, xneary, angle, math.sqrt(xrayx**2 + xrayy**2), True, texturex)
+    print(x_hor, dx)
+
+    for i in range(p.dof):
+        tile_hor = int(x_hor), int(y_hor)
+        if tile_hor in m.map:
+            break
+        x_hor += dx
+        y_hor += dy
+        depth_hor += delta_depth
+    pg.draw.line(screen, "black", (p.x * m.gridPixelW, p.y * m.gridPixelH), (x_hor * m.gridPixelW, y_hor * m.gridPixelH), 2)
+
+    if depth_hor < depth_vert:
+        return #Ray(x_hor - p.x, y_hor - p.y, x_hor, y_hor, angle, depth_hor, True, m.map[tile_hor])
     else:
-        if texturey == -1:  return False    # If no wall found in depth of field
-        return Ray(yrayx, yrayy, ynearx, yneary, angle, math.sqrt(yrayx**2 + yrayy**2), False, texturey)
+        return #Ray(x_vert - p.x, y_vert - p.y, x_vert, y_vert, angle, depth_vert, True, m.map[tile_vert])
 
 def castRay2(screen, p, m, angle):
     # Find which coordinate of the map the player is inside

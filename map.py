@@ -5,7 +5,7 @@ import os
 # Map variables
 mapName = "map.png"      # Map Filename
 MAPCOLOR = (0, 100, 47)  # Color of blocks in 2D topdown mode
-crudeMap = [
+crudeMap2 = [
   [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
   [1,0,2,2,0,0,0,0,0,0,0,0,0,0,0,1],
@@ -22,6 +22,8 @@ crudeMap = [
   [1,0,0,0,1,0,0,0,0,0,0,2,2,0,0,1],
   [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1],
   [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]  ]
+
+crudeMap = [[1,1,1,1,1],[1,0,0,0,1],[1,0,1,0,1],[1,0,0,0,1],[1,1,1,1,1]]
 
 # Game Textures
 # Textures have a filename, height in game, and #TODO
@@ -44,6 +46,13 @@ class Map():
         self.textureSlices = [] # A list of vertical slices of each texture, to be used by scanlines
 
         self.drawmap = True
+
+        # Load map
+        self.map = {}
+        for i in range(len(crudeMap)):
+            for j in range(len(crudeMap[0])):
+                if crudeMap[i][j] != 0:
+                    self.map.update({(i, j): crudeMap[i][j]})
 
         # Load Textures
         for i in range(len(textureList)):

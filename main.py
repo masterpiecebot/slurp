@@ -20,7 +20,7 @@ RAD = 20  # Player size (radius)
 FOV = PI / 2  # Player field of view (radians)
 # X0, Y0 = RESx // 2, RESy // 2
 # THETA0 = PI * 1.4  # Player starting view direction (radians from north CW)
-X0, Y0, THETA0 = 8, 8, 0.3950444078461259
+X0, Y0, THETA0 = 3.5, 3.5, 1
 
 class Game:
 
@@ -29,7 +29,7 @@ class Game:
         os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (0, 50)  # Sets the window location on screen
         pg.init()
         self.sky = pg.image.load("textures\skyxp.png")
-        self.screen = pg.display.set_mode((RESx * 2, RESy))
+        self.screen = pg.display.set_mode((RESx * 1, RESy))
         #self.screen = pg.display.set_mode(RES, flags=pg.SCALED, vsync=1)
         self.clock = pg.time.Clock()
         self.delta_time = 1
@@ -56,10 +56,11 @@ class Game:
             self.screen.blit(self.sky, (0, 0), (offset, 0, width - offset, RESy / 2))
             self.screen.blit(self.sky, (width - offset, 0), (0, 0, RESx + offset - width, RESy / 2))
 
-        castRays(self.screen, self.p, self.m)
         if self.m.drawmap:
             drawMap2D(self.screen, self.m)
             self.p.display()
+
+        castRays(self.screen, self.p, self.m)
 
     def check_events(self):
         for event in pg.event.get():
