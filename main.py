@@ -20,7 +20,8 @@ RAD = 20  # Player size (radius)
 FOV = PI / 2  # Player field of view (radians)
 # X0, Y0 = RESx // 2, RESy // 2
 # THETA0 = PI * 1.4  # Player starting view direction (radians from north CW)
-X0, Y0, THETA0 = 1.5, 1.5, 0
+X0, Y0, XD0, YD0 = 1.5, 1.5, -0.021437029641373062, 1.2043770602930601
+
 
 class Game:
 
@@ -33,7 +34,8 @@ class Game:
         self.clock = pg.time.Clock()
         self.delta_time = 1
         self.m = Map()
-        self.p = Player(self, X0, Y0, THETA0)  # Player container
+        self.p = Player(self, X0, Y0, XD0, YD0)  # Player container
+        self.raycaster = RayCaster(self.screen, self.p, self.m)
 
     # Main functions
     def update(self):
@@ -49,17 +51,19 @@ class Game:
         offset = math.ceil(angle * 896 / PI)
         width = self.sky.get_width()
         if offset + RESx < width:
-            self.screen.blit(self.sky, (0,0), (offset, 0, RESx, RESy/2))
+            self.screen.blit(self.sky, (0, 0), (offset, 0, RESx, RESy / 2))
         else:
             self.sky.get_width() - offset
             self.screen.blit(self.sky, (0, 0), (offset, 0, width - offset, RESy / 2))
             self.screen.blit(self.sky, (width - offset, 0), (0, 0, RESx + offset - width, RESy / 2))
 
+        # Draw minimap
         if self.m.drawmap:
-            drawMap2D(self.screen, self.m)
+            self.m.drawMap2D(self.screen)
+            self.raycaster.cast_rays()
             self.p.display()
-
-        castRays(self.screen, self.p, self.m)
+        else:
+            self.raycaster.cast_rays
 
     def check_events(self):
         for event in pg.event.get():
@@ -70,7 +74,7 @@ class Game:
                 if event.key == pg.K_m:
                     self.m.drawMap()
                     if self.m.drawmap:
-                        self.screen = pg.display.set_mode((RESx*2, RESy))
+                        self.screen = pg.display.set_mode((RESx * 2, RESy))
                     else:
                         self.screen = pg.display.set_mode(RES)
 
@@ -79,7 +83,7 @@ class Game:
             self.check_events()
             self.update()
             self.draw()
-            #print(self.p.x, self.p.y, self.p.theta)
+            # print(self.p.x, self.p.y, self.p.theta)
 
 
 if __name__ == '__main__':
